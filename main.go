@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"time"
@@ -8,11 +9,6 @@ import (
 	"github.com/gen2brain/beeep"
 	"github.com/shirou/gopsutil/mem"
 	"github.com/shirou/gopsutil/process"
-)
-
-const (
-	THRESHOLD = 70
-	INTERVAL  = 5
 )
 
 // Format any form of "number"
@@ -27,7 +23,12 @@ func checkErr(err error) {
 }
 
 func main() {
-	for range time.Tick(time.Second * INTERVAL) {
+	threshold := flag.Int("threshold", 70, "Set RAM threshold in percentage")
+	interval := flag.Int("interval", 5, "Interval to keep checking in seconds")
+
+	flag.Parse()
+
+	for range time.Tick(time.Second * time.Duration(*interval)) {
 		log.Println("[+] Checking...")
 
 		memoryStats, err := mem.VirtualMemory()
@@ -37,7 +38,7 @@ func main() {
 
 		log.Println("[+] Current percentage: ", fmtPercentage(percentage))
 
-		if percentage > THRESHOLD {
+		if percentage > float64(*threshold) {
 
 			log.Println("[+] Spike Detected: ", fmtPercentage(percentage))
 
