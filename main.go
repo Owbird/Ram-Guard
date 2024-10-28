@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/gen2brain/beeep"
 	"github.com/shirou/gopsutil/mem"
 	"github.com/shirou/gopsutil/process"
 )
@@ -40,6 +41,8 @@ func main() {
 
 			log.Println("[+] Spike Detected: ", fmtPercentage(percentage))
 
+			beeep.Alert("Ram Guard", fmt.Sprintf("Memory at %s", fmtPercentage(percentage)), "")
+
 			processList, err := process.Processes()
 			checkErr(err)
 
@@ -74,13 +77,16 @@ func main() {
 			}
 
 			log.Println("[+] Largest process detected: ", process.Name, fmtPercentage(process.MemoryUsage))
+			beeep.Alert("Ram Guard", fmt.Sprintf("Largest process detected", fmtPercentage(percentage)), "")
 
 			for _, currentProcess := range processList {
 				name, _ := currentProcess.Name()
 
 				if name == process.Name {
 					err := currentProcess.Kill()
-					checkErr(err)
+					if err == nil {
+						beeep.Alert("Ram Guard", fmt.Sprintf("Killed %s", name), "")
+					}
 				}
 			}
 
