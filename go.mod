@@ -2,10 +2,12 @@ module github.com/owbird/ram-guard
 
 go 1.22.3
 
-require github.com/shirou/gopsutil v3.21.11+incompatible
+require (
+	github.com/gen2brain/beeep v0.0.0-20240516210008-9c006672e7f4
+	github.com/shirou/gopsutil v3.21.11+incompatible
+)
 
 require (
-	github.com/gen2brain/beeep v0.0.0-20240516210008-9c006672e7f4 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-toast/toast v0.0.0-20190211030409-01e6764cf0a4 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
