@@ -22,7 +22,7 @@
 
 ## ⚙️ Usage
 
-Configure `interval` and `threshold` settings in the configuration file or pass them as command-line arguments:
+Configure `interval` and `threshold` as command-line arguments or use defaults of 70% and 5s:
 
 ```bash
 ram-guard --interval <time_in_seconds> --threshold <RAM_limit_in_%>
