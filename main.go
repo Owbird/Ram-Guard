@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -9,43 +10,57 @@ import (
 )
 
 const (
-	THRESHOLD = 50
+	THRESHOLD = 70
 	INTERVAL  = 5
 )
 
+// Format any form of "number"
+func fmtPercentage(percentage interface{}) string {
+	return fmt.Sprintf("%.2f", percentage)
+}
+
+func checkErr(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
 	for range time.Tick(time.Second * INTERVAL) {
+		log.Println("[+] Checking...")
 
 		memoryStats, err := mem.VirtualMemory()
-		if err != nil {
-			log.Fatal(err)
-		}
+		checkErr(err)
 
 		percentage := (float64(memoryStats.Used) / float64(memoryStats.Total)) * 100
 
-		log.Println("[+] Current percentage: ", percentage)
+		log.Println("[+] Current percentage: ", fmtPercentage(percentage))
 
 		if percentage > THRESHOLD {
 
+			log.Println("[+] Spike Detected: ", fmtPercentage(percentage))
+
 			processList, err := process.Processes()
-			if err != nil {
-				log.Fatal(err)
-			}
+			checkErr(err)
 
 			type Process struct {
 				Name        string
 				MemoryUsage float32
 			}
 
+			// Condense all child processes into one
 			db := make(map[string]Process)
 
 			for _, currentProcess := range processList {
-				name, _ := currentProcess.Name()
-				memory_usage, _ := currentProcess.MemoryPercent()
+				name, err := currentProcess.Name()
+				checkErr(err)
+
+				memoryUsage, err := currentProcess.MemoryPercent()
+				checkErr(err)
 
 				db[name] = Process{
 					Name:        name,
-					MemoryUsage: db[name].MemoryUsage + memory_usage,
+					MemoryUsage: db[name].MemoryUsage + memoryUsage,
 				}
 
 			}
@@ -58,16 +73,14 @@ func main() {
 				}
 			}
 
-			log.Println("[+] Spike detected: ", process.Name, process.MemoryUsage)
+			log.Println("[+] Largest process detected: ", process.Name, fmtPercentage(process.MemoryUsage))
 
 			for _, currentProcess := range processList {
 				name, _ := currentProcess.Name()
 
 				if name == process.Name {
 					err := currentProcess.Kill()
-					if err != nil {
-						log.Println(err)
-					}
+					checkErr(err)
 				}
 			}
 
