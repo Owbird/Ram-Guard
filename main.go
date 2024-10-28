@@ -28,6 +28,8 @@ func main() {
 
 	flag.Parse()
 
+	log.Println("[+] Starting...")
+
 	for range time.Tick(time.Second * time.Duration(*interval)) {
 		log.Println("[+] Checking...")
 
